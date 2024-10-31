@@ -8,9 +8,10 @@ endereco_dados = 'https://www.ispdados.rj.gov.br/Arquivos/BaseDPEvolucaoMensalCi
 
 # Criando o DataFrame ocorrencias
 df_ocorrencias = pd.read_csv(endereco_dados,sep=';',encoding='iso-8859-1')
-df_recuperacao_veiculo = df_ocorrencias[['aisp','ano','recuperacao_veiculos']]
+df_recuperacao_veiculo = df_ocorrencias[['aisp','ano','recuperacao_veiculos','cvli']]
 df_recuperacao_veiculo = df_recuperacao_veiculo[df_recuperacao_veiculo['ano'].isin([2022,2023])]
 df_recuperacao_veiculo = df_recuperacao_veiculo.groupby(['aisp']).sum(['recuperacao_veiculos']).reset_index()
+df_recuperacao_veiculo = df_recuperacao_veiculo.groupby(['aisp']).sum(['cvli']).reset_index()
 
 # Exibindo a base de dados ocorrencia
 print('\n---- EXIBINDO A BASE DE DADOS -----')
@@ -18,22 +19,29 @@ print(df_recuperacao_veiculo.head())
 
 # Criando o array dos recuperacao de veiculos
 array_recuperacao_veiculo = np.array(df_recuperacao_veiculo["recuperacao_veiculos"])
+array_cvli = np.array(df_recuperacao_veiculo["cvli"])
 
 # Obtendo a média dos recuperacao de veiculos
 media_recuperacao_veiculo = np.mean(array_recuperacao_veiculo)
+media_cvli = np.mean(array_cvli)
 
 # Obtendo a mediana dos recuperacao de veiculos
 mediana_recuperacao_veiculo = np.median(array_recuperacao_veiculo)
+mediana_cvli = np.median(array_cvli)
 
 # Obtendo a distância entre a média e a mediana dos recuperacao de veiculos
 distancia_recuperacao_veiculo = abs((media_recuperacao_veiculo - mediana_recuperacao_veiculo) / mediana_recuperacao_veiculo) * 100
+distancia_cvli = abs((media_cvli - mediana_cvli) / mediana_cvli) * 100
 
 # Obtendo o máximo e o mínimo dos recuperacao de veiculos
 maximo_recuperacao_veiculo = np.max(array_recuperacao_veiculo)
 minimo_recuperacao_veiculo = np.min(array_recuperacao_veiculo)
+maximo_cvli = np.max(array_cvli)
+minimo_cvli = np.min(array_cvli)
 
 # Obtendo a amplitude dos recuperacao de veiculos
 amplitude_recuperacao_veiculo = maximo_recuperacao_veiculo - minimo_recuperacao_veiculo
+amplitude_cvli = maximo_cvli - minimo_cvli
 
 # Obtendo os Quartis dos recuperacao de veiculos - Método weibull
 q1_recuperacao_veiculo = np.quantile(array_recuperacao_veiculo, 0.25, method='weibull')
@@ -41,13 +49,23 @@ q2_recuperacao_veiculo = np.quantile(array_recuperacao_veiculo, 0.50, method='we
 q3_recuperacao_veiculo = np.quantile(array_recuperacao_veiculo, 0.75, method='weibull')
 iqr_recuperacao_veiculo = q3_recuperacao_veiculo - q1_recuperacao_veiculo
 
+q1_cvli = np.quantile(array_cvli, 0.25, method='weibull')
+q2_cvli = np.quantile(array_cvli, 0.50, method='weibull')
+q3_cvli = np.quantile(array_cvli, 0.75, method='weibull')
+iqr_cvli = q3_cvli - q1_cvli
+
+
 # Identificando os outliers superiores e inferiores dos recuperacao de veículos
 limite_superior_recuperacao_veiculo = q3_recuperacao_veiculo + (1.5 * iqr_recuperacao_veiculo)
 limite_inferior_recuperacao_veiculo = q1_recuperacao_veiculo - (1.5 * iqr_recuperacao_veiculo)
 
+limite_superior_cvli = q3_cvli + (1.5 * iqr_cvli)
+limite_inferior_cvli = q1_cvli - (1.5 * iqr_cvli)
+
 # Filtrando o DataFrame recuperacao de veículos
-df_recuperacao_veiculo_outliers_superiores = df_recuperacao_veiculo[df_recuperacao_veiculo['recuperacao_veiculos'] > limite_superior_recuperacao_veiculo]
+df_recuperacrao_veiculo_outliers_superiores = df_recuperacao_veiculo[df_recuperacao_veiculo['recuperacao_veiculos'] > limite_superior_recuperacao_veiculo]
 df_recuperacao_veiculo_outliers_inferiores = df_recuperacao_veiculo[df_recuperacao_veiculo['recuperacao_veiculos'] < limite_inferior_recuperacao_veiculo]
+df
 
 # Obtendo as medidas de dispersão dos recuperacao de veículos
 variancia_recuperacao_veiculo = np.var(array_recuperacao_veiculo)
@@ -84,7 +102,7 @@ if len(df_recuperacao_veiculo_outliers_inferiores) == 0:
 else:
     print(df_recuperacao_veiculo_outliers_inferiores)
 print('\n- Verificando a existência de outliers superiores -')
-if len(df_recuperacao_veiculo_outliers_superiores) == 0:
+if len(df_recuperacrao_veiculo_outliers_superiores) == 0:
     print("Não existem outliers superiores")
 else:
     print(df_recuperacao_veiculo_outliers_superiores)
